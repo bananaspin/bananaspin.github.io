@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Banana</title>
+<style>
+  html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#ffd600}
+  .screen{
+    position:fixed;inset:0;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;perspective:900px;
+  }
+  .sun{
+    width:200vmax;height:200vmax;flex:none;
+    background:repeating-conic-gradient(rgba(255,255,255,.55) 0deg 8deg,transparent 8deg 18deg);
+    -webkit-mask:radial-gradient(closest-side,#000 10%,transparent 70%);
+    mask:radial-gradient(closest-side,#000 10%,transparent 70%);
+    animation:spin 60s linear infinite;
+  }
+  .wobble{position:absolute;animation:wobble 3s ease-in-out infinite}
+  .banana{width:50vmin;height:50vmin;cursor:pointer;transform-style:preserve-3d;user-select:none;-webkit-tap-highlight-color:transparent}
+  .banana.flip{animation:flip 1s ease-in-out}
+  .banana.spin{animation:flip 1s linear infinite}
+  .banana img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;-webkit-user-drag:none}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes wobble{
+    0%,100%{transform:rotateZ(-6deg)}
+    50%{transform:rotateZ(6deg)}
+  }
+  @keyframes flip{
+    from{transform:rotateY(0deg)}
+    to{transform:rotateY(360deg)}
+  }
+</style>
+</head>
+<body>
+  <div class="screen">
+    <div class="sun"></div>
+    <div class="wobble">
+      <div class="banana" id="banana">
+        <img src="https://www.dropbox.com/scl/fi/45a0juw3vi3lekpvmflot/foni-papik-pro-1h63-p-kartinki-banan-na-prozrachnom-fone-26.png?rlkey=jv3ec9kozvh3r79yycofc0syy&st=xz9kniqp&dl=1" alt="">
+      </div>
+    </div>
+  </div>
+<script>
+  const b = document.getElementById('banana');
+  const WINDOW_MS = 3000; // окно для быстрых кликов
+  const CLICKS_TO_SPIN = 15;
+  let flipping = false;
+  let spinning = false;
+  let clicks = [];
+
+  b.addEventListener('click', () => {
+    if (spinning) return;
+
+    const now = Date.now();
+    clicks = clicks.filter(t => now - t < WINDOW_MS);
+    clicks.push(now);
+
+    if (clicks.length >= CLICKS_TO_SPIN) {
+      spinning = true;
+      b.classList.remove('flip');
+      b.classList.add('spin');
+      return;
+    }
+
+    if (flipping) return; // не перезапускаем текущий поворот
+    flipping = true;
+    b.classList.add('flip');
+  });
+
+  b.addEventListener('animationend', e => {
+    if (e.animationName === 'flip' && !spinning) {
+      b.classList.remove('flip');
+      flipping = false;
+    }
+  });
+</script>
+</body>
+</html>
